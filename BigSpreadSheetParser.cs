@@ -27,8 +27,13 @@ namespace BigSpreadSheetApp
 
                 OpenXmlReader reader = OpenXmlReader.Create(worksheetPart);
 
-                var sharedStringTable = workbookPart.SharedStringTablePart.SharedStringTable
-                    .Elements<SharedStringItem>().ToList();
+                Dictionary<int, string> sharedStringCache = new Dictionary<int, string>();
+
+                int i = 0;
+                foreach (var el in workbookPart.SharedStringTablePart.SharedStringTable.ChildElements)
+                {
+                    sharedStringCache.Add(i++, el.InnerText);
+                }
 
                 while (reader.Read())
                 {
@@ -65,7 +70,7 @@ namespace BigSpreadSheetApp
                                         value = c.CellValue.InnerText;
                                         break;
                                     case CellValues.SharedString:
-                                        value = sharedStringTable.ElementAt(int.Parse(c.CellValue.InnerText)).InnerText;
+                                        value = sharedStringCache[int.Parse(c.CellValue.InnerText)];
                                         break;
                                     default:
                                         continue;
